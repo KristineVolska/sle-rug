@@ -4,40 +4,33 @@ extend lang::std::Layout;
 extend lang::std::Id;
 
 start syntax Form 
-  = "form" Id formName "{" Statement* formElements"}";
+  = "form" Id formName "{" Question* formElements"}"
+  ; 
 
-syntax Statement 
-  = question: Question question
-  | ifCondition: IfPart ifPart ElsePart? elsePart
-  ;
-  
-syntax Conditional = conditional: Expr condition "{" Statement+ body "}" ;
-
-syntax IfPart = "if" Conditional ifPart;
-
-syntax ElsePart = elsePart: "else" "{" Statement+ body "}";
-
-start syntax Question 
-  = question: QuestionText questionText Id id ":" Type answerDataType
-  | question: QuestionText questionText Id id ":" Type answerDataType "=" Expr calculatedField
+syntax Question
+  =  Str Id ":" Type
+  | Str Id ":" Type "=" Expr
+  | block: "{" Question* "}"
+  | ifthen: "if (" Expr ") {" Question* "}"
+  | ifthenelse: "if (" Expr ") {" Question* "}" "else" "{" Question* "}"
   ;
 
 syntax Expr
-  = id: Id name \ "true" \ "false" //iznem ara ari citus keywordus! (keyword Reserved)
-  | \int: Int number
-  | boolean: Bool truthValue
+  = id: Id name \ "true" \ "false"
+  | \int: Int
+  | boolean: Bool value
   | string: Str text
-  | bracket "(" Expr expression ")"
-  | pos: "+" Expr pos
-  | neg: "-" Expr neg
-  | not: "!" Expr not
+  | bracket "(" Expr ")"
+  | pos: "+" Expr
+  | neg: "-" Expr
+  | not: "!" Expr
   > left (
       mul: Expr multiplicand "*" Expr multiplier
     | div: Expr numerator "/" Expr denominator
   )
   > left (
-      add: Expr leftAddend "+" Expr rightAddend
-    | sub: Expr minuend "-" Expr subtrahend
+      add: Expr left "+" Expr right
+    | sub: Expr left "-" Expr right
   )
   > non-assoc (
       lt: Expr left "\<" Expr right
@@ -51,15 +44,10 @@ syntax Expr
   > left or: Expr left "||" Expr right
   ;
 
-lexical QuestionText = questionText: Str questionText ;
 lexical Str = "\"" TextChar* "\"";
 lexical TextChar = [\\] << [\"] | ![\"];
-lexical Int 
-  = [0-9]+ !>> [0-9] ;
-
-lexical Bool = 
-  "true" | "false";
-
+lexical Int = [0-9]+ !>> [0-9];
+lexical Bool = "true" | "false";
 
 syntax Type = booleanType: "boolean"
   | integerType: "integer"
