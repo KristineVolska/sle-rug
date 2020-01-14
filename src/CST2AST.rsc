@@ -28,8 +28,8 @@ AForm cst2ast(f:(Form)`form <Id id> { <Question* questions> }`) {
 
 AQuestion cst2ast(Question q) {
   switch (q) {
-    case (Question)`<Str label> <Id id> : <Type typeName>`: return question("<label>", "<id>", cst2ast(typeName), src=q@\loc);
-    case (Question)`<Str label> <Id id> : <Type typeName> = <Expr expression>`: return computedQuestion("<label>", "<id>", cst2ast(typeName), cst2ast(expression), src=q@\loc);
+    case (Question)`<Str label> <Id questId> : <Type typeName>`: return question("<label>", cst2ast(questId), cst2ast(typeName), src=q@\loc);
+    case (Question)`<Str label> <Id questId> : <Type typeName> = <Expr expression>`: return computedQuestion("<label>", cst2ast(questId), cst2ast(typeName), cst2ast(expression), src=q@\loc);
 	case (Question)`{ <Question* questions> }` : return block([cst2ast(question) | Question question <- questions], src = q@\loc); 
     case (Question)`if ( <Expr expression> ) { <Question* questions> }`: return ifThen(cst2ast(expression), [cst2ast(question) | Question question <- questions], src=q@\loc); 
     case (Question)`if ( <Expr expression> ) { <Question* questions1> } else { <Question* questions2> }`: return ifThenElse(cst2ast(expression), [cst2ast(question) | Question question <- questions1], [cst2ast(question) | Question question <- questions2], src=q@\loc);
@@ -39,15 +39,14 @@ AQuestion cst2ast(Question q) {
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc), src=x@\loc);
+    case (Expr)`<Id x>`: return ref(questId("<x>", src=x@\loc), src=x@\loc);
     case (Expr)`<Bool b>`: return boolean(fromString("<b>"), src=b@\loc);
     case (Expr)`<Str text>`: return string("<text>", src=text@\loc);   
     case (Expr)`<Int i>`: return \int(toInt("<i>"), src=i@\loc);
     
     case (Expr)`+ <Expr expression>`: return pos(cst2ast(expression), src=expression@\loc);
     case (Expr)`- <Expr expression>`: return neg(cst2ast(expression), src=expression@\loc);
-    
-    
+       
     case (Expr)`( <Expr expression> )`: return par(cst2ast(expression), src=expression@\loc);
     case (Expr)`! <Expr expression>`: return not(cst2ast(expression), src=expression@\loc);
     case (Expr)`<Expr multiplicand> * <Expr multiplier>`: return mul(cst2ast(multiplicand), cst2ast(multiplier), src=e@\loc);
@@ -66,6 +65,10 @@ AExpr cst2ast(Expr e) {
     case (Expr)`<Expr left> || <Expr right>`: return or(cst2ast(left), cst2ast(right), src=e@\loc);
     default: throw "Unhandled expression: <e>";
   }
+}
+
+AId cst2ast(Id x) {
+  return questId("<x>", src=x@\loc);
 }
 
 AType cst2ast(Type t) {

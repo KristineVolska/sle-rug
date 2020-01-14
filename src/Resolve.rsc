@@ -1,5 +1,8 @@
 module Resolve
 
+import Set;
+import List;
+import IO;
 import AST;
 
 /*
@@ -25,6 +28,10 @@ alias RefGraph = tuple[
 RefGraph resolve(AForm f) = <us, ds, us o ds>
   when Use us := uses(f), Def ds := defs(f);
 
-Use uses(AForm f) = { <x, name> | /ref(id(name), src = loc x) <- f };
+Use uses(AForm f) {
+  return {<id.src, id.name> | /ref(AId id) := f};
+}
 
-Def defs(AForm f) = { <q.id, q.src> | /AQuestion q <- f.questions, q has id}; 
+Def defs(AForm f) {
+  return { <questId.name, x> | /question(_, AId questId, _, src = loc x) <- f };
+}

@@ -12,8 +12,8 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
-  = question(str text, str id, AType typeName)
-  | computedQuestion(str text, str id, AType typeName, AExpr expression)
+  = question(str text, AId questId, AType typeName)
+  | computedQuestion(str text, AId questId, AType typeName, AExpr expression)
   | block(list[AQuestion] questions)
   | ifThen(AExpr expression, list[AQuestion] questions)
   | ifThenElse(AExpr expression, list[AQuestion] questions1, list[AQuestion] questions2)
@@ -47,7 +47,7 @@ data AExpr(loc src = |tmp:///|)
   ;
 
 data AId(loc src = |tmp:///|)
-  = id(str name);
+  = questId(str name);
 
 data AType(loc src = |tmp:///|)
   = boolean()
