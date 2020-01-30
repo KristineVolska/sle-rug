@@ -29,26 +29,27 @@ RefGraph resolveTest(loc filename) {
   return resolve(cst2astTest(filename));
 }
 
-/*
+
 VEnv evalTest(loc filename) {
   ast = cst2astTest(filename);
-   //println(ast);
   VEnv venv = initialEnv(ast);
-  println(venv);
-  list[Input] input = [
+    list[Input] input = [
     input("hasBoughtHouse", vbool(true)),
     input("hasMaintLoan", vbool(false)),
     input("hasSoldHouse", vbool(true)),
     input("sellingPrice", vint(100)),
     input("privateDebt", vint(20))
   ];
-  
+      
   for (Input inp <- input) {
     venv = eval(ast, inp, venv);
   }
+  ast = flatten(ast);
+  compile(ast);  
   return venv;
 }
-*/
+
+
 set[Message] allStepTest(loc filename) {
   concrete = parse(#start[Form], filename);
   abstract = cst2ast(concrete);

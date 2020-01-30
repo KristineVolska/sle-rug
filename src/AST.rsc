@@ -21,7 +21,7 @@ data AQuestion(loc src = |tmp:///|)
 
 data AExpr(loc src = |tmp:///|)
   = ref(AId id)
-  | \int(int i)
+  | integer(int i)
   | boolean(bool b)
   | string(str text)
   

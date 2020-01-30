@@ -42,7 +42,7 @@ AExpr cst2ast(Expr e) {
     case (Expr)`<Id x>`: return ref(questId("<x>", src=x@\loc), src=x@\loc);
     case (Expr)`<Bool b>`: return boolean(fromString("<b>"), src=b@\loc);
     case (Expr)`<Str text>`: return string("<text>", src=text@\loc);   
-    case (Expr)`<Int i>`: return \int(toInt("<i>"), src=i@\loc);
+    case (Expr)`<Int i>`: return integer(toInt("<i>"), src=i@\loc);
     
     case (Expr)`+ <Expr expression>`: return pos(cst2ast(expression), src=expression@\loc);
     case (Expr)`- <Expr expression>`: return neg(cst2ast(expression), src=expression@\loc);

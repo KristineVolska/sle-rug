@@ -17,7 +17,7 @@ syntax Question
 
 syntax Expr
   = id: Id name \ "true" \ "false"
-  | \int: Int
+  | integer: Int
   | boolean: Bool value
   | string: Str text
   | bracket "(" Expr ")"
@@ -44,8 +44,7 @@ syntax Expr
   > left or: Expr left "||" Expr right
   ;
 
-lexical Str = "\"" TextChar* "\"";
-lexical TextChar = [\\] << [\"] | ![\"];
+lexical Str = "\"" ([\\] | ![\"])* "\"";
 lexical Int = [0-9]+ !>> [0-9];
 lexical Bool = "true" | "false";
 

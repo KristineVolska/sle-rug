@@ -21,7 +21,7 @@ alias TEnv = rel[loc def, str name, str label, Type \type];
 TEnv collect(AForm f) = {
   return {<def, id.name, label, toType(t)> | /question(str label, AId id, AType t, src = loc def) <- f}
       +  {<def, id.name, label, toType(t)> | /computedQuestion(str label, AId id, AType t, AExpr _, src = loc def) <- f};
-}; //TODO: test if nothing's missing 
+};
 
 // Convert AST type to Check type
 Type toType(boolean()) = tbool();
@@ -44,7 +44,7 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
 // - duplicate labels should trigger a warning 
 // - the declared type computed questions should match the type of the expression.
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
-	switch (q) { // name, label, text, identifier...............?? Different names used but could mean the same
+	switch (q) {
 		case question(str text, AId questId, _, src = loc l): {
 			return  { error("Declared question with the same name but different type", l) | size((tenv<1,3>)[questId.name]) > 1}
 			+	{ warning("Duplicate labels", l) | size((tenv<2,0>)[q.text]) > 1}
@@ -55,14 +55,14 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
 			+	{ warning("Duplicate labels", l) | size((tenv<2,0>)[q.text]) > 1}
 			+	{ warning("Different labels for the same question", l) | size((tenv<1,2>)[questId.name]) > 1}
 			+	{ error("The declared type computed question does not match the type of the expression", l)
-  					| toType(t) != typeOf(expr, tenv, useDef) && typeOf(expr, tenv, useDef) != tunknown() }  // "tunknown()" could be removed... depends on required scenario
+  					| toType(t) != typeOf(expr, tenv, useDef) && typeOf(expr, tenv, useDef) != tunknown() }
   			+   check(expr, tenv, useDef);
 		}
         case ifThen(AExpr expr, _, src = loc l): {
-			return { error("Condition is not of type boolean", l) | typeOf(expr, tenv, useDef) != tbool()};
+			return { error("Condition is not boolean", l) | typeOf(expr, tenv, useDef) != tbool()};
 		}
 	    case ifThenElse(AExpr expr, _, _, src = loc l): {
-			return { error("Condition is not of type boolean", l) | typeOf(expr, tenv, useDef) != tbool()};
+			return { error("Condition is not boolean", l) | typeOf(expr, tenv, useDef) != tbool()};
 		}
 	}
 	return {};
@@ -75,7 +75,7 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
   switch (e) {
     case ref(AId x):
-      msgs += { error("Undeclared question", x.src) | useDef[x.src] == {} };
+      msgs += { error("Reference to undefined question", x.src) | useDef[x.src] == {} };
     case not(AExpr expr, src = loc u):
       msgs += { error("Unary negation operand is not of type boolean", u)
                 | typeOf(expr, tenv, useDef) != tbool() };
@@ -117,7 +117,7 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
       if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
         return t;
       }
-    case \int(int i, src = loc u): return tint();	
+    case integer(int i, src = loc u): return tint();	
     case boolean(bool b, src = loc u): return tbool();
     case string(str text, src = loc u): return tstr();
     case par(AExpr expression): return typeOf(expression, tenv, useDef);
