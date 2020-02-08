@@ -4,7 +4,8 @@ import Set;
 import List;
 import IO;
 import AST;
-
+ import util::Math;
+ 
 /*
  * Name resolution for QL
  */ 
@@ -29,9 +30,18 @@ RefGraph resolve(AForm f) = <us, ds, us o ds>
   when Use us := uses(f), Def ds := defs(f);
 
 Use uses(AForm f) {
-  return {<x, id.name> | /ref(AId id, src = loc x) := f};
+  Use uses = {};
+  visit(f) {
+    case ref(AId id): uses += {<id.src, id.name>};
+  }
+  return uses;
 }
 
 Def defs(AForm f) {
-  return { <id.name, x> | /question(_, AId id, _, src = loc x) := f };
+  Def defs = {};
+  visit(f) {
+    case question(str text, AId id, AType typ): defs += {<id.name, id.src>};
+    case computedQuestion(str text, AId id, AType \type, AExpr expr): defs += {<id.name, id.src>};
+  }
+  return defs;
 }

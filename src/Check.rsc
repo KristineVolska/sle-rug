@@ -5,6 +5,7 @@ import AST;
 import Resolve;
 import Message;
 import Set; 
+import List;
 
 data Type
   = tint()
@@ -113,10 +114,16 @@ Type typeOf(boolean(_)) = tbool();
 
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
   switch (e) {
-    case ref(questId(_, src = loc u)):  
-      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
-        return t;
+    case ref(questId(str varName, src = loc use)): {
+      Type typ = tunknown();
+      for(<loc def, str name, str label, Type t> <- tenv) {
+          if(!isEmpty(tenv[def][varName][_])) {
+             typ = getFirstFrom(tenv[def][varName][_]);
+             return typ;
+          }
       }
+      return typ;
+    }
     case integer(int i, src = loc u): return tint();	
     case boolean(bool b, src = loc u): return tbool();
     case string(str text, src = loc u): return tstr();
@@ -137,17 +144,3 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
   }
   return tunknown(); 
 }
-
-/* 
- * Pattern-based dispatch style:
- * 
- * Type typeOf(ref(id(_, src = loc u)), TEnv tenv, UseDef useDef) = t
- *   when <u, loc d> <- useDef, <d, x, _, Type t> <- tenv
- *
- * ... etc.
- * 
- * default Type typeOf(AExpr _, TEnv _, UseDef _) = tunknown();
- *
- */
- 
- 
